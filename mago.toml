@@ -2,4 +2,4 @@
 paths = ["src", "tests", "public"]
 
 [linter]
-level = "recommended"
+minimum-fail-level = "error"
