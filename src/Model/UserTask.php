@@ -92,7 +92,7 @@ class UserTask extends ModelAbstract
     /** Indique si la tâche donnée est présente dans la liste en mémoire. */
     public function hasTask(int $taskId): bool
     {
-        return isset($this->taskList[$taskId]);
+        return array_key_exists($taskId, $this->taskList);
     }
 
     /**

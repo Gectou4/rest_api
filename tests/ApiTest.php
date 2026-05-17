@@ -16,7 +16,7 @@ class ApiTest extends TestCase
 
     public function testGetUser(): void
     {
-        $_REQUEST['request'] = '/user/1';
+        $_GET['request'] = '/user/1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $api      = new Api();
@@ -31,7 +31,7 @@ class ApiTest extends TestCase
 
     public function testGetUserTask(): void
     {
-        $_REQUEST['request'] = '/user/1/task';
+        $_GET['request'] = '/user/1/task';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $api      = new Api();
@@ -47,7 +47,7 @@ class ApiTest extends TestCase
 
     public function testAddTask(): void
     {
-        $_REQUEST['request'] = '/task/';
+        $_GET['request'] = '/task/';
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['status']      = TaskStatus::Backlog->value;
         $_POST['title']       = 'Faire le thè';
@@ -70,7 +70,7 @@ class ApiTest extends TestCase
         $taskList = $task->getAll();
         $last     = array_pop($taskList);
 
-        $_REQUEST['request'] = '/task/' . $last['task_id'];
+        $_GET['request'] = '/task/' . $last['task_id'];
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['status']      = TaskStatus::Backlog->value;
         $_POST['title']       = 'Faire le thè';
@@ -90,7 +90,7 @@ class ApiTest extends TestCase
         $taskList = $task->getAll();
         $last     = array_pop($taskList);
 
-        $_REQUEST['request'] = '/user/1/task/' . $last['task_id'];
+        $_GET['request'] = '/user/1/task/' . $last['task_id'];
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $api      = new Api();
@@ -107,7 +107,7 @@ class ApiTest extends TestCase
         $taskList = $task->getAll();
         $last     = array_pop($taskList);
 
-        $_REQUEST['request'] = '/user/1/task/' . $last['task_id'];
+        $_GET['request'] = '/user/1/task/' . $last['task_id'];
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
 
         $api      = new Api();
@@ -124,7 +124,7 @@ class ApiTest extends TestCase
         $taskList = $task->getAll();
         $last     = array_pop($taskList);
 
-        $_REQUEST['request'] = '/task/' . $last['task_id'];
+        $_GET['request'] = '/task/' . $last['task_id'];
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
 
         $api      = new Api();

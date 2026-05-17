@@ -25,9 +25,9 @@ class DB
     public static function getConfig(string $key = 'default'): array
     {
         $default = [
-            'user' => getenv('DB_USER') ?: 'root',
-            'pwd'  => getenv('DB_PWD')  ?: '',
-            'dsn'  => getenv('DB_DSN')  ?: 'mysql:host=localhost;dbname=rest_api;charset=utf8',
+            'user' => getenv('DB_USER') !== false ? getenv('DB_USER') : 'root',
+            'pwd'  => getenv('DB_PWD') !== false ? getenv('DB_PWD') : '',
+            'dsn'  => getenv('DB_DSN') !== false ? getenv('DB_DSN') : 'mysql:host=localhost;dbname=rest_api;charset=utf8',
         ];
 
         $master = $default;

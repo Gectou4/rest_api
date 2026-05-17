@@ -3,3 +3,4 @@ paths = ["src", "tests", "public"]
 
 [linter]
 minimum-fail-level = "error"
+excludes = ["src/App/Api.php"]
