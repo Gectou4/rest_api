@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace G4\Api\Model;
 
-use G4\Api\Model\TaskStatus;
-
 /**
  * Entité tâche. Le statut est géré via l'enum TaskStatus.
  * Les constantes STATUS_* sont conservées comme alias entiers pour la compatibilité.
