@@ -3,20 +3,3 @@ paths = ["src", "tests", "public"]
 
 [linter]
 minimum-fail-level = "error"
-
-[linter.rules]
-"security/unsafe-variable" = "off"
-"security/unsafe-globals" = "off"
-"style/empty" = "off"
-"style/isset" = "off"
-"style/named-argument" = "off"
-"style/early-continue" = "off"
-"style/redundant-comparison" = "off"
-"style/parameter-name" = "off"
-"style/reference-undefined" = "off"
-"type/mixed-argument" = "off"
-"type/mixed-return" = "off"
-"type/mixed-assignment" = "off"
-"type/callable-argument" = "off"
-"type/new-static" = "off"
-"type/string-concat-mixed" = "off"
