@@ -13,7 +13,9 @@ use G4\Api\Config\Route as Config;
 class Router extends SingletonAbstract
 {
     private array  $routes    = [];
+
     private string $baseroute = '';
+
     private string $method    = '';
 
     /** Retourne l'instance unique et charge les routes si elles ne l'ont pas encore été. */
@@ -23,6 +25,7 @@ class Router extends SingletonAbstract
         if ($instance->routes === []) {
             Config::load($instance);
         }
+
         return $instance;
     }
 
@@ -42,6 +45,7 @@ class Router extends SingletonAbstract
                 implode(', ', array_keys($allowed))
             ));
         }
+
         $this->method = $method;
     }
 
@@ -52,11 +56,12 @@ class Router extends SingletonAbstract
     public function match(string $methods, string $pattern, callable $fn): static
     {
         $pattern = $this->baseroute . '/' . trim($pattern, '/');
-        $pattern = $this->baseroute ? rtrim($pattern, '/') : $pattern;
+        $pattern = $this->baseroute !== '' && $this->baseroute !== '0' ? rtrim($pattern, '/') : $pattern;
 
         foreach (explode('|', $methods) as $method) {
             $this->routes[$method][] = ['pattern' => $pattern, 'fn' => $fn];
         }
+
         return $this;
     }
 
@@ -66,6 +71,7 @@ class Router extends SingletonAbstract
         if (isset($this->routes[$this->method])) {
             return $this->handle($this->routes[$this->method], $uri);
         }
+
         return null;
     }
 
@@ -84,15 +90,17 @@ class Router extends SingletonAbstract
             $matches = array_slice($matches, 1);
             $params  = array_filter(array_map(function (array $match, int $index) use ($matches): string {
                 if (array_key_exists($index + 1, $matches) && is_array($matches[$index + 1][0])) {
-                    return trim(substr($match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
+                    return trim(substr((string) $match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
                 }
-                return array_key_exists(0, $match) ? trim($match[0][0], '/') : '';
+
+                return array_key_exists(0, $match) ? trim((string) $match[0][0], '/') : '';
             }, $matches, array_keys($matches)), fn(string $v): bool => $v !== '');
 
             $fn = $route['fn'];
             \assert(\is_callable($fn));
             return $fn(...$params);
         }
+
         return null;
     }
 }

@@ -12,16 +12,25 @@ class Task extends ModelAbstract
 {
     // Aliases de compatibilité — préférer TaskStatus::* dans le nouveau code
     const int STATUS_BACKLOG     = TaskStatus::Backlog->value;
+
     const int STATUS_TODO        = TaskStatus::Todo->value;
+
     const int STATUS_IN_PROGRESS = TaskStatus::InProgress->value;
+
     const int STATUS_DONE        = TaskStatus::Done->value;
+
     const int STATUS_CLOSE       = TaskStatus::Closed->value;
 
     protected int                 $id           = 0;
+
     protected string              $title        = '';
+
     protected string              $description  = '';
+
     protected ?\DateTimeImmutable $creationDate = null;
+
     protected TaskStatus          $status       = TaskStatus::Backlog;
+
     protected string              $table        = 'task';
 
     #[\Override]
@@ -53,6 +62,7 @@ class Task extends ModelAbstract
         if ($this->loaded) {
             return;
         }
+
         $this->setId($id);
         $sth = $this->db->query(sprintf(
             'SELECT status, title, description, creation_date FROM `%s` WHERE task_id = %d',
@@ -162,6 +172,7 @@ class Task extends ModelAbstract
             if ($saved && $this->getId() <= 0) {
                 $this->setId((int) $this->db->lastInsertId());
             }
+
             return $saved;
 
         } catch (\Exception) {
@@ -204,6 +215,7 @@ class Task extends ModelAbstract
         } catch (\Exception) {
             // nothing yet
         }
+
         return $taskList;
     }
 

@@ -11,7 +11,9 @@ namespace G4\Api\Model;
 class UserTask extends ModelAbstract
 {
     protected int    $userId   = 0;
+
     protected array  $taskList = [];
+
     protected string $table    = 'user_task';
 
     /** Délègue le chargement à loadByUserId(). */
@@ -40,9 +42,10 @@ class UserTask extends ModelAbstract
         return $this->getUserId();
     }
 
-    public function setId(int $id): void
+    public function setId(int $id): static
     {
         $this->setUserId($id);
+        return $this;
     }
 
     public function getTaskIds(): array
@@ -100,10 +103,9 @@ class UserTask extends ModelAbstract
      * supprime toutes les associations existantes pour l'utilisateur,
      * puis insère les tâches de la liste courante.
      */
-    #[\Override]
     public function save(): bool
     {
-        \assert($this->db !== null);
+        \assert($this->db instanceof \PDO);
         try {
             $this->db->beginTransaction();
 
@@ -114,6 +116,7 @@ class UserTask extends ModelAbstract
             foreach (array_keys($this->taskList) as $taskId) {
                 $sth->execute([$this->getUserId(), $taskId]);
             }
+
             $sth->closeCursor();
 
             return $this->db->commit();
@@ -127,7 +130,7 @@ class UserTask extends ModelAbstract
     /** Supprime une seule association user-task dans une transaction atomique. */
     public function deleteUserTask(int $taskId): bool
     {
-        \assert($this->db !== null);
+        \assert($this->db instanceof \PDO);
         try {
             $this->db->beginTransaction();
 
@@ -149,6 +152,7 @@ class UserTask extends ModelAbstract
         foreach ($this->taskList as $taskId => $task) {
             $tasks[$taskId] = $task->toArray();
         }
+
         return ['user_id' => $this->getUserId(), 'tasks' => $tasks];
     }
 
@@ -166,12 +170,14 @@ class UserTask extends ModelAbstract
         if ($this->loaded) {
             return;
         }
+
         $this->setId($userId);
         $sth = $this->db->prepare('SELECT task_id FROM user_task WHERE user_id = ?');
         $sth->execute([$this->getUserId()]);
         foreach ($sth->fetchAll(\PDO::FETCH_ASSOC) as $row) {
             $this->addTaskId((int) $row['task_id']);
         }
+
         $this->loaded = true;
     }
 }

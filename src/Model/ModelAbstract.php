@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace G4\Api\Model;
 
-use G4\Api\App\DB as DB;
+use G4\Api\App\DB;
 
 /**
  * Classe de base pour tous les modèles.
@@ -13,9 +13,13 @@ use G4\Api\App\DB as DB;
 abstract class ModelAbstract
 {
     protected int    $id       = 0;
+
     protected string $table    = '';
+
     protected string $dbserver = 'master';
+
     protected ?\PDO  $db       = null;
+
     protected bool   $loaded   = false;
 
     /**
@@ -36,9 +40,10 @@ abstract class ModelAbstract
         return $this->id;
     }
 
-    public function setId(int $id): void
+    public function setId(int $id): static
     {
         $this->id = $id;
+        return $this;
     }
 
     /** Retourne true uniquement si load() a trouvé et hydraté un enregistrement. */
@@ -62,6 +67,7 @@ abstract class ModelAbstract
                 $return[$key] = $value instanceof self ? $value->toArray() : $value;
             }
         }
+
         return $return;
     }
 

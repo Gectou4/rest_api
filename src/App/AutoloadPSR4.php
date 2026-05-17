@@ -20,16 +20,16 @@ class AutoloadPSR4
      *
      * @var array
      */
-    protected $prefixes = array();
+    protected $prefixes = [];
 
     /**
      * Register loader with SPL autoloader stack.
      * 
      * @return void
      */
-    public function register()
+    public function register(): static
     {
-        spl_autoload_register(array($this, 'loadClass'));
+        spl_autoload_register($this->loadClass(...));
         return $this;
     }
 
@@ -44,7 +44,7 @@ class AutoloadPSR4
      * than last.
      * @return void
      */
-    public function addNamespace($prefix, $base_dir, $prepend = false)
+    public function addNamespace($prefix, $base_dir, $prepend = false): static
     {
         // normalize namespace prefix
         $prefix = trim($prefix, '\\') . '\\';
@@ -54,15 +54,16 @@ class AutoloadPSR4
 
         // initialize the namespace prefix array
         if (isset($this->prefixes[$prefix]) === false) {
-            $this->prefixes[$prefix] = array();
+            $this->prefixes[$prefix] = [];
         }
 
         // retain the base directory for the namespace prefix
         if ($prepend) {
             array_unshift($this->prefixes[$prefix], $base_dir);
         } else {
-            array_push($this->prefixes[$prefix], $base_dir);
+            $this->prefixes[$prefix][] = $base_dir;
         }
+
         return $this;
     }
 
@@ -111,7 +112,7 @@ class AutoloadPSR4
      * @return mixed Boolean false if no mapped file can be loaded, or the
      * name of the mapped file that was loaded.
      */
-    protected function loadMappedFile($prefix, $relative_class)
+    protected function loadMappedFile($prefix, $relative_class): false|string
     {
         // are there any base directories for this namespace prefix?
         if (isset($this->prefixes[$prefix]) === false) {
@@ -145,12 +146,13 @@ class AutoloadPSR4
      * @param string $file The file to require.
      * @return bool True if the file exists, false if not.
      */
-    protected function requireFile($file)
+    protected function requireFile($file): bool
     {
         if (file_exists($file)) {
             require $file;
             return true;
         }
+
         return false;
     }
 }

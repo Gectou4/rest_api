@@ -13,9 +13,13 @@ use G4\Api\Config\DB as Config;
 class DB extends MultitonAbstract
 {
     protected ?\PDO   $db       = null;
+
     protected ?string $user     = null;
+
     protected ?string $pwd      = null;
+
     protected ?string $dsn      = null;
+
     protected ?string $dbServer = null;
 
     /**
@@ -47,18 +51,20 @@ class DB extends MultitonAbstract
      */
     public function connect(): void
     {
-        if ($this->db !== null) {
+        if ($this->db instanceof \PDO) {
             return;
         }
+
         if ($this->dsn === null) {
             throw new \RuntimeException('Database config is missing.');
         }
+
         try {
             $this->db = new \PDO($this->dsn, $this->user, $this->pwd, [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             ]);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Database connection failed: ' . $e->getMessage(), 0, $e);
+        } catch (\Exception $exception) {
+            throw new \RuntimeException('Database connection failed: ' . $exception->getMessage(), 0, $exception);
         }
     }
 

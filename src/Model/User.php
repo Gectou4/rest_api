@@ -8,7 +8,9 @@ namespace G4\Api\Model;
 class User extends ModelAbstract
 {
     protected string $email = '';
+
     protected string $name  = '';
+
     protected string $table = 'user';
 
     /**
@@ -22,6 +24,7 @@ class User extends ModelAbstract
         if ($this->loaded) {
             return;
         }
+
         $this->setId($id);
         $sth = $this->db->query(sprintf(
             'SELECT email, name FROM %s WHERE user_id = %d',

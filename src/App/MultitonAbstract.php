@@ -18,6 +18,7 @@ abstract class MultitonAbstract
         if (!array_key_exists($key, static::$instances)) {
             static::$instances[$key] = new static();
         }
+
         return static::$instances[$key];
     }
 

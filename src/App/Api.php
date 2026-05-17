@@ -55,12 +55,19 @@ class Api
     ];
 
     protected string $contentType    = 'application/json';
+
     protected string $method         = '';
+
     protected array  $args           = [];
+
     protected mixed  $controller     = null;
+
     protected string $controllerName = '';
+
     protected string $action         = 'Index';
+
     protected int    $code           = 500;
+
     protected mixed  $response       = '';
 
     public function getResponse(): mixed
@@ -98,11 +105,11 @@ class Api
             return $this;
         }
 
-        $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
-        $request      = rtrim($_GET['request'] ?? $_POST['request'] ?? '', '/');
+        $this->method = strtoupper((string) $_SERVER['REQUEST_METHOD']);
+        $request      = rtrim((string) ($_GET['request'] ?? $_POST['request'] ?? ''), '/');
 
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-        if (str_contains($accept, 'text/markdown')) {
+        if (str_contains((string) $accept, 'text/markdown')) {
             $this->contentType = 'text/markdown; charset=utf-8';
         }
 
@@ -132,6 +139,7 @@ class Api
 
         $route  = Router::getInstance();
         $route->setMethod($this->method);
+
         $result = $route->run($request);
 
         if (isset($result['controller'])) {
@@ -156,7 +164,7 @@ class Api
             return $this;
         }
 
-        if (!is_callable([$className, $method])) {
+        if (!method_exists($className, $method)) {
             $this->code     = 404;
             $this->response = $this->getHttpCodeMessage(404);
             return $this;
@@ -176,8 +184,8 @@ class Api
 
         try {
             $this->response = $this->controller->$method();
-        } catch (\Exception $e) {
-            $this->response = $e->getMessage();
+        } catch (\Exception $exception) {
+            $this->response = $exception->getMessage();
         }
 
         $this->code = $this->controller->getCode();
@@ -198,9 +206,10 @@ class Api
     /** Encode la réponse dans le format de contenu configuré (JSON par défaut). */
     public function getFormatedResponseForContent(): string
     {
-        if ($this->response === null || $this->response === '' || $this->response === []) {
+        if (in_array($this->response, [null, '', []], true)) {
             return '';
         }
+
         return match (true) {
             str_contains($this->contentType, 'text/markdown') => $this->toMarkdown($this->response),
             default                                            => json_encode($this->response, JSON_PRETTY_PRINT),
@@ -217,6 +226,7 @@ class Api
         if (!is_array($data)) {
             return (string) $data;
         }
+
         $lines  = [];
         $isList = array_is_list($data);
         foreach ($data as $key => $value) {
@@ -224,11 +234,12 @@ class Api
                 $heading = str_repeat('#', min($depth + 2, 6));
                 $lines[] = $isList
                     ? $this->toMarkdown($value, $depth + 1)
-                    : "$heading $key\n\n" . $this->toMarkdown($value, $depth + 1);
+                    : "{$heading} {$key}\n\n" . $this->toMarkdown($value, $depth + 1);
             } else {
-                $lines[] = $isList ? "- $value" : "**$key** : $value";
+                $lines[] = $isList ? '- ' . $value : sprintf('**%s** : %s', $key, $value);
             }
         }
+
         return implode("\n", $lines);
     }
 
@@ -267,6 +278,7 @@ class Api
                 if ($isJson) {
                     return json_decode($raw, true) ?? [];
                 }
+
                 parse_str($raw, $data);
                 return $data;
             })()),
@@ -278,8 +290,9 @@ class Api
     protected function cleanInputs(mixed $data): mixed
     {
         if (is_array($data)) {
-            return array_map(fn(mixed $v): mixed => $this->cleanInputs($v), $data);
+            return array_map($this->cleanInputs(...), $data);
         }
+
         return trim(strip_tags((string) $data));
     }
 
@@ -298,6 +311,7 @@ class Api
         if (headers_sent()) {
             return;
         }
+
         header('HTTP/1.1 ' . $this->code . ' ' . $this->getHttpCodeMessage($this->code));
         header('Content-Type: ' . $this->contentType);
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -315,12 +329,14 @@ class Api
         if (function_exists('getallheaders')) {
             return getallheaders() ?: [];
         }
+
         $headers = [];
         foreach ($_SERVER as $key => $value) {
-            if (str_starts_with($key, 'HTTP_')) {
-                $headers[str_replace('_', '-', ucwords(strtolower(substr($key, 5)), '_'))] = $value;
+            if (str_starts_with((string) $key, 'HTTP_')) {
+                $headers[str_replace('_', '-', ucwords(strtolower(substr((string) $key, 5)), '_'))] = $value;
             }
         }
+
         return $headers;
     }
 }

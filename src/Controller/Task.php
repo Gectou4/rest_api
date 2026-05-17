@@ -137,6 +137,7 @@ class Task extends ControllerAbstract
             if ($userTask->removeTaskId($taskId)->save()) {
                 return 1;
             }
+
             return 'Unable to delete Task of user';
         }
 
