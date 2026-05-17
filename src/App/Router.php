@@ -89,11 +89,11 @@ class Router extends SingletonAbstract
 
             $matches = array_slice($matches, 1);
             $params  = array_filter(array_map(function (array $match, int $index) use ($matches): string {
-                if (array_key_exists($index + 1, $matches) && is_array($matches[$index + 1][0])) {
-                    return trim(substr((string) $match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
+                if (array_key_exists($index + 1, $matches)) {
+                    return trim(substr($match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
                 }
 
-                return array_key_exists(0, $match) ? trim((string) $match[0][0], '/') : '';
+                return array_key_exists(0, $match) ? trim($match[0][0], '/') : '';
             }, $matches, array_keys($matches)), fn(string $v): bool => $v !== '');
 
             $fn = $route['fn'];

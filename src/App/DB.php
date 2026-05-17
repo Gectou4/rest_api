@@ -26,10 +26,10 @@ class DB extends MultitonAbstract
      * Retourne l'instance Multiton pour le serveur donné.
      * Applique la configuration et établit la connexion PDO si ce n'est pas déjà fait.
      */
-    public static function getInstance(string $dbServer = 'default'): static
+    public static function getInstance(string $key = 'default'): static
     {
-        $instance = parent::getInstance($dbServer);
-        $instance->dbServer = $dbServer;
+        $instance = parent::getInstance($key);
+        $instance->dbServer = $key;
         Config::load($instance);
         $instance->connect();
         return $instance;
