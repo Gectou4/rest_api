@@ -92,7 +92,7 @@ class Api
      */
     public function processRequest(): static
     {
-        if (!isset($_SERVER['REQUEST_METHOD'])) {
+        if ($_SERVER['REQUEST_METHOD'] === null) {
             $this->code     = 406;
             $this->response = $this->getHttpCodeMessage(406);
             return $this;
@@ -162,7 +162,7 @@ class Api
             return $this;
         }
 
-        if (!empty($this->args)) {
+        if ($this->args !== []) {
             foreach ($this->args as $key => $value) {
                 $params[$key] = $value;
             }
@@ -170,7 +170,7 @@ class Api
 
         $this->controller = new $className;
 
-        if (!empty($params)) {
+        if ($params !== []) {
             $this->controller->setParams($params);
         }
 
@@ -198,7 +198,7 @@ class Api
     /** Encode la réponse dans le format de contenu configuré (JSON par défaut). */
     public function getFormatedResponseForContent(): string
     {
-        if (empty($this->response)) {
+        if ($this->response === null || $this->response === '' || $this->response === []) {
             return '';
         }
         return match (true) {

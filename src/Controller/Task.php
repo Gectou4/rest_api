@@ -29,7 +29,8 @@ class Task extends ControllerAbstract
      */
     public function putAddTaskAction(): mixed
     {
-        if (empty($this->getParam('title'))) {
+        $title = $this->getParam('title');
+        if ($title === '' || $title === null) {
             $this->setCode(400);
             throw new \Exception('Title is required');
         }
@@ -143,7 +144,8 @@ class Task extends ControllerAbstract
      */
     public function putEditTaskAction(): mixed
     {
-        if (empty($this->getParam('id'))) {
+        $id = $this->getParam('id');
+        if ($id === '' || $id === null) {
             $this->setCode(400);
             throw new \Exception('Id of task to edit is required');
         }

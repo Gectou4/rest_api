@@ -12,7 +12,7 @@ abstract class SingletonAbstract
     /** Retourne l'instance unique de la classe appelante, en la créant si nécessaire. */
     public static function getInstance(): static
     {
-        if (!isset(static::$instance)) {
+        if (static::$instance === null) {
             static::$instance = new static();
         }
         return static::$instance;
@@ -26,7 +26,7 @@ abstract class SingletonAbstract
      * Empêche la désérialisation de l'instance.
      * @throws \Exception dans tous les cas.
      */
-    private function __wakeup(): never
+    public function __wakeup(): never
     {
         throw new \Exception('Cannot unserialize a singleton.');
     }
