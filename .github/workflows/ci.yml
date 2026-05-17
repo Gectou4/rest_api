@@ -24,9 +24,6 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://carthage.software/mago.sh | bash -s -- --version=${{ env.MAGO_VERSION }}
           echo "$HOME/.mago/bin" >> $GITHUB_PATH
 
-      - name: Initialize Mago config
-        run: mago init
-
       - name: Run linter
         run: mago lint
 
@@ -46,9 +43,6 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://carthage.software/mago.sh | bash -s -- --version=${{ env.MAGO_VERSION }}
           echo "$HOME/.mago/bin" >> $GITHUB_PATH
-
-      - name: Initialize Mago config
-        run: mago init
 
       - name: Run static analysis
         run: mago analyze
@@ -154,9 +148,6 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://carthage.software/mago.sh | bash -s -- --version=${{ env.MAGO_VERSION }}
           echo "$HOME/.mago/bin" >> $GITHUB_PATH
-
-      - name: Initialize Mago config
-        run: mago init
 
       - name: Apply formatting fixes
         run: mago fmt

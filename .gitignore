@@ -4,4 +4,3 @@ vendor/
 .env.local
 *.log
 .docker/
-mago.toml
