@@ -103,6 +103,7 @@ class UserTask extends ModelAbstract
     #[\Override]
     public function save(): bool
     {
+        \assert($this->db !== null);
         try {
             $this->db->beginTransaction();
 
@@ -126,6 +127,7 @@ class UserTask extends ModelAbstract
     /** Supprime une seule association user-task dans une transaction atomique. */
     public function deleteUserTask(int $taskId): bool
     {
+        \assert($this->db !== null);
         try {
             $this->db->beginTransaction();
 

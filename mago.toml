@@ -3,4 +3,4 @@ paths = ["src", "tests", "public"]
 
 [linter]
 minimum-fail-level = "error"
-excludes = ["src/App/Api.php", "src/Model/UserTask.php"]
+excludes = ["src/App/Api.php", "src/Controller/Task.php"]
