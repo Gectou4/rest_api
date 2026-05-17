@@ -12,6 +12,3 @@ line_ending = "lf"
 
 [linter]
 level = "recommended"
-
-[analyzer]
-strictness = "recommended"
