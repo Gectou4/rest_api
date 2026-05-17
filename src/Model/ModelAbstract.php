@@ -12,15 +12,15 @@ use G4\Api\App\DB;
  */
 abstract class ModelAbstract
 {
-    protected int    $id       = 0;
+    protected int $id = 0;
 
-    protected string $table    = '';
+    protected string $table = '';
 
     protected string $dbserver = 'master';
 
-    protected ?\PDO  $db       = null;
+    protected ?\PDO $db = null;
 
-    protected bool   $loaded   = false;
+    protected bool $loaded = false;
 
     /**
      * Acquiert la connexion PDO et charge l'objet si un id > 0 est fourni.
@@ -60,7 +60,7 @@ abstract class ModelAbstract
     public function toArray(): array
     {
         $protected = ['table' => true, 'dbserver' => true, 'db' => true, 'loaded' => true];
-        $return    = [];
+        $return = [];
 
         foreach ($this as $key => $value) {
             if (!($protected[$key] ?? false)) {

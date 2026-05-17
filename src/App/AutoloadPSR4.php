@@ -24,8 +24,6 @@ class AutoloadPSR4
 
     /**
      * Register loader with SPL autoloader stack.
-     * 
-     * @return void
      */
     public function register(): static
     {
@@ -42,7 +40,6 @@ class AutoloadPSR4
      * @param bool $prepend If true, prepend the base directory to the stack
      * instead of appending it; this causes it to be searched first rather
      * than last.
-     * @return void
      */
     public function addNamespace($prefix, $base_dir, $prepend = false): static
     {
@@ -81,8 +78,7 @@ class AutoloadPSR4
 
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
-        while (false !== $pos = strrpos($prefix, '\\')) {
-
+        while (false !== ($pos = strrpos($prefix, '\\'))) {
             // retain the trailing namespace separator in the prefix
             $prefix = substr($class, 0, $pos + 1);
 
@@ -97,7 +93,7 @@ class AutoloadPSR4
 
             // remove the trailing namespace separator for the next iteration
             // of strrpos()
-            $prefix = rtrim($prefix, '\\');   
+            $prefix = rtrim($prefix, '\\');
         }
 
         // never found a mapped file
@@ -106,7 +102,7 @@ class AutoloadPSR4
 
     /**
      * Load the mapped file for a namespace prefix and relative class.
-     * 
+     *
      * @param string $prefix The namespace prefix.
      * @param string $relative_class The relative class name.
      * @return mixed Boolean false if no mapped file can be loaded, or the
@@ -121,13 +117,10 @@ class AutoloadPSR4
 
         // look through base directories for this namespace prefix
         foreach ($this->prefixes[$prefix] as $base_dir) {
-
             // replace the namespace prefix with the base directory,
             // replace namespace separators with directory separators
             // in the relative class name, append with .php
-            $file = $base_dir
-                  . str_replace('\\', '/', $relative_class)
-                  . '.php';
+            $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
 
             // if the mapped file exists, require it
             if ($this->requireFile($file)) {
@@ -142,7 +135,7 @@ class AutoloadPSR4
 
     /**
      * If a file exists, require it from the file system.
-     * 
+     *
      * @param string $file The file to require.
      * @return bool True if the file exists, false if not.
      */

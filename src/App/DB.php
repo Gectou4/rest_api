@@ -12,13 +12,13 @@ use G4\Api\Config\DB as Config;
  */
 class DB extends MultitonAbstract
 {
-    protected ?\PDO   $db       = null;
+    protected ?\PDO $db = null;
 
-    protected ?string $user     = null;
+    protected ?string $user = null;
 
-    protected ?string $pwd      = null;
+    protected ?string $pwd = null;
 
-    protected ?string $dsn      = null;
+    protected ?string $dsn = null;
 
     protected ?string $dbServer = null;
 
@@ -38,9 +38,9 @@ class DB extends MultitonAbstract
     /** Stocke les paramètres de connexion avant l'appel à connect(). */
     public function setConfig(string $dsn, string $user, string $pwd = ''): static
     {
-        $this->dsn  = $dsn;
+        $this->dsn = $dsn;
         $this->user = $user;
-        $this->pwd  = $pwd;
+        $this->pwd = $pwd;
         return $this;
     }
 

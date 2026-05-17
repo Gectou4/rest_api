@@ -9,7 +9,7 @@ class User extends ModelAbstract
 {
     protected string $email = '';
 
-    protected string $name  = '';
+    protected string $name = '';
 
     protected string $table = 'user';
 
@@ -26,11 +26,7 @@ class User extends ModelAbstract
         }
 
         $this->setId($id);
-        $sth = $this->db->query(sprintf(
-            'SELECT email, name FROM %s WHERE user_id = %d',
-            $this->table,
-            $this->getId()
-        ));
+        $sth = $this->db?->query(sprintf('SELECT email, name FROM %s WHERE user_id = %d', $this->table, $this->getId()));
         if ($sth) {
             $result = $sth->fetch(\PDO::FETCH_ASSOC);
             if ($result) {
@@ -72,8 +68,8 @@ class User extends ModelAbstract
     {
         return [
             'user_id' => $this->getId(),
-            'name'    => $this->getName(),
-            'email'   => $this->getEmail(),
+            'name' => $this->getName(),
+            'email' => $this->getEmail(),
         ];
     }
 }

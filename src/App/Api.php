@@ -54,7 +54,7 @@ class Api
         505 => 'HTTP Version Not Supported',
     ];
 
-    protected string $contentType    = 'application/json';
+    protected string $contentType    = 'application/json; charset=utf-8';
 
     protected string $method         = '';
 
