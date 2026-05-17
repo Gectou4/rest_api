@@ -20,7 +20,7 @@ class Router extends SingletonAbstract
     public static function getInstance(): static
     {
         $instance = parent::getInstance();
-        if (empty($instance->routes)) {
+        if ($instance->routes === []) {
             Config::load($instance);
         }
         return $instance;

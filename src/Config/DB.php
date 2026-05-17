@@ -24,10 +24,14 @@ class DB
      */
     public static function getConfig(string $key = 'default'): array
     {
+        $envUser = getenv('DB_USER');
+        $envPwd = getenv('DB_PWD');
+        $envDsn = getenv('DB_DSN');
+
         $default = [
-            'user' => getenv('DB_USER') !== false ? getenv('DB_USER') : 'root',
-            'pwd'  => getenv('DB_PWD') !== false ? getenv('DB_PWD') : '',
-            'dsn'  => getenv('DB_DSN') !== false ? getenv('DB_DSN') : 'mysql:host=localhost;dbname=rest_api;charset=utf8',
+            'user' => \is_string($envUser) ? $envUser : 'root',
+            'pwd'  => \is_string($envPwd) ? $envPwd : '',
+            'dsn'  => \is_string($envDsn) ? $envDsn : 'mysql:host=localhost;dbname=rest_api;charset=utf8',
         ];
 
         $master = $default;
