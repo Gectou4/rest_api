@@ -4,7 +4,7 @@
 [source]
 paths = ["src", "tests", "public"]
 
-[format]
+[formatter]
 indent_style = "space"
 indent_width = 4
 line_length = 120
