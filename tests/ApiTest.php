@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use G4\Api\App\Api;
 use G4\Api\Model\Task;
 use G4\Api\Model\TaskStatus;

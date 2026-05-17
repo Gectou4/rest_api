@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace G4\Api\App;
 
 use G4\Api\Config\Route as Config;
@@ -79,14 +82,16 @@ class Router extends SingletonAbstract
             }
 
             $matches = array_slice($matches, 1);
-            $params  = array_map(function (array $match, int $index) use ($matches): ?string {
+            $params  = array_filter(array_map(function (array $match, int $index) use ($matches): string {
                 if (isset($matches[$index + 1][0]) && is_array($matches[$index + 1][0])) {
                     return trim(substr($match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
                 }
-                return isset($match[0][0]) ? trim($match[0][0], '/') : null;
-            }, $matches, array_keys($matches));
+                return isset($match[0][0]) ? trim($match[0][0], '/') : '';
+            }, $matches, array_keys($matches)), fn(string $v): bool => $v !== '');
 
-            return call_user_func_array($route['fn'], $params);
+            $fn = $route['fn'];
+            \assert(\is_callable($fn));
+            return $fn(...$params);
         }
         return null;
     }

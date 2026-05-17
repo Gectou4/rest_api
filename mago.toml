@@ -3,11 +3,3 @@ paths = ["src", "tests", "public"]
 
 [linter]
 level = "recommended"
-
-[linter.rules]
-"security/unsafe-request" = "off"
-"security/unsafe-globals" = "off"
-"type/callable-argument" = "off"
-"type/mixed-return" = "off"
-"style/named-argument" = "off"
-"style/strict-types" = "off"

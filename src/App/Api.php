@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace G4\Api\App;
 
 /**
@@ -96,7 +99,7 @@ class Api
         }
 
         $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
-        $request      = rtrim($_REQUEST['request'], '/');
+        $request      = rtrim($_GET['request'] ?? $_POST['request'] ?? '', '/');
 
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
         if (str_contains($accept, 'text/markdown')) {
