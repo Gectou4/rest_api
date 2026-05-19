@@ -23,8 +23,14 @@ jobs:
           php-version: '8.3'
           tools: composer
 
+      - name: Clear composer cache
+        run: composer clear-cache
+
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
+
+      - name: Regenerate optimized autoloader
+        run: composer dump-autoload --optimize
 
       - name: Install Mago
         env:
@@ -70,15 +76,8 @@ jobs:
           coverage: none
           tools: composer
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-php${{ matrix.php-version }}-composer-
-
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Wait for MySQL
         run: |
