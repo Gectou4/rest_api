@@ -201,8 +201,8 @@ class Api
      */
     protected function dispatchController(array $params): bool
     {
-        $className = '\G4\Api\Controller\\' . ucfirst(strtolower($this->controllerName));
-        $method    = strtolower($this->method) . ucfirst(strtolower($this->action)) . 'Action';
+        $className = '\G4\Api\Controller\\' . ucfirst($this->controllerName);
+        $method    = strtolower($this->method) . ucfirst($this->action) . 'Action';
 
         if (!class_exists($className) || !method_exists($className, $method)) {
             $this->code     = 404;
