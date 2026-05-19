@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  MAGO_VERSION: '1.27.0'
+  MAGO_VERSION: '1.28.0'
 
 jobs:
   analyze:
@@ -16,6 +16,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
       - name: Install Mago
         env:
