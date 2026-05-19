@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace G4\Api\Model;
 
 /**
- * Agrégat représentant la relation N:N entre un utilisateur et ses tâches.
+ * Entité représentant la relation N:N entre un utilisateur et ses tâches.
  * Correspond à la table pivot user_task.
  */
 class UserTask extends ModelAbstract
 {
     protected int    $userId   = 0;
-
     protected array  $taskList = [];
-
     protected string $table    = 'user_task';
 
-    /** Délègue le chargement à loadByUserId(). */
     #[\Override]
     public function load(int $id): void
     {
@@ -39,12 +36,13 @@ class UserTask extends ModelAbstract
     #[\Override]
     public function getId(): int
     {
-        return $this->getUserId();
+        return $this->userId;
     }
 
+    #[\Override]
     public function setId(int $id): static
     {
-        $this->setUserId($id);
+        $this->userId = $id;
         return $this;
     }
 
@@ -58,37 +56,27 @@ class UserTask extends ModelAbstract
         return $this->taskList;
     }
 
-    /** Ajoute une tâche à la liste en mémoire (instancie l'objet Task correspondant). */
-    public function addTaskId(int $taskId): static
+    /** Ajoute une tâche à la liste en mémoire. Accepte un ID ou un objet Task. */
+    public function addTask(int|Task $task): static
     {
+        $taskId = $task instanceof Task ? $task->getId() : $task;
         $this->taskList[$taskId] = new Task($taskId);
         return $this;
     }
 
-    /** Ajoute un objet Task directement (recharge depuis la DB pour garantir les données). */
-    public function addTask(Task $task): static
+    /** Retire une tâche de la liste en mémoire. Accepte un ID ou un objet Task. */
+    public function removeTask(int|Task $task): static
     {
-        $this->taskList[$task->getId()] = new Task($task->getId());
-        return $this;
-    }
-
-    public function removeTask(Task $task): static
-    {
-        unset($this->taskList[$task->getId()]);
-        return $this;
-    }
-
-    public function removeTaskId(int $taskId): static
-    {
+        $taskId = $task instanceof Task ? $task->getId() : $task;
         unset($this->taskList[$taskId]);
         return $this;
     }
 
-    /** Factory : crée une instance UserTask et la charge depuis l'objet User fourni. */
+    /** Factory : crée et charge un UserTask depuis un objet User. */
     public static function getTaskByUser(User $user): static
     {
         $instance = new static();
-        $instance->loadByUser($user);
+        $instance->loadByUserId($user->getId());
         return $instance;
     }
 
@@ -99,26 +87,24 @@ class UserTask extends ModelAbstract
     }
 
     /**
-     * Stratégie de remplacement complet dans une transaction :
-     * supprime toutes les associations existantes pour l'utilisateur,
-     * puis insère les tâches de la liste courante.
+     * Remplace toutes les associations dans une transaction :
+     * supprime puis réinsère les tâches de la liste courante.
      */
     public function save(): bool
     {
-        \assert($this->db instanceof \PDO);
+        \assert($this->db instanceof \PDO, 'Database connection must be established before saving');
         try {
             $this->db->beginTransaction();
 
             $sth = $this->db->prepare('DELETE FROM `user_task` WHERE user_id = ?');
-            $sth->execute([$this->getUserId()]);
+            $sth->execute([$this->userId]);
 
             $sth = $this->db->prepare('INSERT INTO `user_task` (`user_id`, `task_id`) VALUES (?, ?)');
             foreach (array_keys($this->taskList) as $taskId) {
-                $sth->execute([$this->getUserId(), $taskId]);
+                $sth->execute([$this->userId, $taskId]);
             }
 
             $sth->closeCursor();
-
             return $this->db->commit();
 
         } catch (\Exception) {
@@ -130,12 +116,12 @@ class UserTask extends ModelAbstract
     /** Supprime une seule association user-task dans une transaction atomique. */
     public function deleteUserTask(int $taskId): bool
     {
-        \assert($this->db instanceof \PDO);
+        \assert($this->db instanceof \PDO, 'Database connection must be established before deleting association');
         try {
             $this->db->beginTransaction();
 
             $sth = $this->db->prepare('DELETE FROM `user_task` WHERE user_id = ? AND task_id = ?');
-            $sth->execute([$this->getUserId(), $taskId]);
+            $sth->execute([$this->userId, $taskId]);
 
             return $this->db->commit();
 
@@ -152,30 +138,21 @@ class UserTask extends ModelAbstract
         foreach ($this->taskList as $taskId => $task) {
             $tasks[$taskId] = $task->toArray();
         }
-
-        return ['user_id' => $this->getUserId(), 'tasks' => $tasks];
+        return ['user_id' => $this->userId, 'tasks' => $tasks];
     }
 
-    protected function loadByUser(User $user): void
-    {
-        $this->loadByUserId($user->getId());
-    }
-
-    /**
-     * Charge toutes les task_id associées à l'utilisateur et instancie les objets Task.
-     * Idempotente grâce au guard $loaded.
-     */
+    /** Charge toutes les task_id associées à l'utilisateur. */
     protected function loadByUserId(int $userId): void
     {
         if ($this->loaded) {
             return;
         }
 
-        $this->setId($userId);
+        $this->userId = $userId;
         $sth = $this->db->prepare('SELECT task_id FROM user_task WHERE user_id = ?');
-        $sth->execute([$this->getUserId()]);
+        $sth->execute([$this->userId]);
         foreach ($sth->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-            $this->addTaskId((int) $row['task_id']);
+            $this->addTask((int) $row['task_id']);
         }
 
         $this->loaded = true;

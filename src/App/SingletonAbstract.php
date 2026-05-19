@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace G4\Api\App;
 
 /** Implémentation du patron Singleton avec protection contre le clonage et la désérialisation. */
+/**
+ * @phpstan-consistent-constructor
+ */
 abstract class SingletonAbstract
 {
     protected static ?self $instance = null;
 
-    /** Retourne l'instance unique de la classe appelante, en la créant si nécessaire. */
+    /** @return static */
     public static function getInstance(): static
     {
         if (static::$instance === null) {

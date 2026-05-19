@@ -110,7 +110,7 @@ class Task extends ModelAbstract
             'Y-m-d H:i:s',
             $datetime,
             new \DateTimeZone('Europe/Paris')
-        ) ?: null;
+        ) ?? null;
         return $this;
     }
 
@@ -153,27 +153,34 @@ class Task extends ModelAbstract
                     'INSERT INTO `' . $this->table . '` (status, title, description, creation_date)
                      VALUES (:status, :title, :description, :creation_date)'
                 );
-            } else {
-                $sth = $this->db->prepare(
-                    'UPDATE `' . $this->table . '` SET status=:status, title=:title,
-                     description=:description, creation_date=:creation_date
-                     WHERE task_id = :id'
-                );
-                $sth->bindValue(':id', $this->getId(), \PDO::PARAM_INT);
+
+                $sth->bindValue(':status',        $this->getStatus()->value,                       \PDO::PARAM_INT);
+                $sth->bindValue(':title',         $this->getTitle(),                               \PDO::PARAM_STR);
+                $sth->bindValue(':description',   $this->getDescription(),                         \PDO::PARAM_STR);
+                $sth->bindValue(':creation_date', $this->getCreationDate()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+
+                $saved = $sth->execute();
+
+                if ($saved && $this->getId() <= 0) {
+                    $this->setId((int) $this->db->lastInsertId());
+                }
+
+                return $saved;
             }
+
+            $sth = $this->db->prepare(
+                'UPDATE `' . $this->table . '` SET status=:status, title=:title,
+                 description=:description, creation_date=:creation_date
+                 WHERE task_id = :id'
+            );
+            $sth->bindValue(':id', $this->getId(), \PDO::PARAM_INT);
 
             $sth->bindValue(':status',        $this->getStatus()->value,                       \PDO::PARAM_INT);
             $sth->bindValue(':title',         $this->getTitle(),                               \PDO::PARAM_STR);
             $sth->bindValue(':description',   $this->getDescription(),                         \PDO::PARAM_STR);
             $sth->bindValue(':creation_date', $this->getCreationDate()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
 
-            $saved = $sth->execute();
-
-            if ($saved && $this->getId() <= 0) {
-                $this->setId((int) $this->db->lastInsertId());
-            }
-
-            return $saved;
+            return $sth->execute();
 
         } catch (\Exception) {
             return false;
@@ -194,7 +201,7 @@ class Task extends ModelAbstract
 
     /**
      * Retourne toutes les tâches sous forme de tableaux associatifs bruts (non hydratés).
-     * TODO : implémenter $offset et $limit pour la pagination.
+     * TODO(@gectou4) : implémenter $offset et $limit pour la pagination.
      */
     public function getAll(?int $offset = null, ?int $limit = null): array
     {
@@ -206,14 +213,14 @@ class Task extends ModelAbstract
                 $status = TaskStatus::tryFrom((int) $row['status']);
                 $taskList[$row['task_id']] = [
                     'task_id'       => (int) $row['task_id'],
-                    'status'        => $status?->value ?? (int) $row['status'],
+                    'status'        => $status->value ?? (int) $row['status'],
                     'title'         => $row['title'],
                     'description'   => $row['description'],
                     'creation_date' => $row['creation_date'],
                 ];
             }
         } catch (\Exception) {
-            // nothing yet
+            // @mago-expect lint:no-empty-catch-clause
         }
 
         return $taskList;

@@ -56,6 +56,8 @@ abstract class ModelAbstract
      * Sérialisation générique : itère les propriétés publiques en excluant les propriétés techniques.
      * Les sous-classes doivent surcharger cette méthode pour un rendu précis,
      * car les propriétés protected ne sont pas accessibles via foreach($this).
+     *
+     * @mago-ignore analysis:non-traversable-iteration
      */
     public function toArray(): array
     {
@@ -63,9 +65,10 @@ abstract class ModelAbstract
         $return = [];
 
         foreach ($this as $key => $value) {
-            if (!($protected[$key] ?? false)) {
-                $return[$key] = $value instanceof self ? $value->toArray() : $value;
+            if ($protected[$key] ?? false) {
+                continue;
             }
+            $return[$key] = $value instanceof self ? $value->toArray() : $value;
         }
 
         return $return;

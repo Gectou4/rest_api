@@ -38,7 +38,7 @@ class Router extends SingletonAbstract
         $allowed = ['GET' => true, 'POST' => true, 'DELETE' => true, 'PUT' => true, 'HEAD' => true];
         $method = strtoupper(trim($method));
 
-        if (!isset($allowed[$method])) {
+        if (!array_key_exists($method, $allowed)) {
             throw new \InvalidArgumentException(sprintf(
                 'Router: method [%s] is not allowed. Expected: %s',
                 $method,
@@ -68,7 +68,7 @@ class Router extends SingletonAbstract
     /** Parcourt les routes enregistrées pour la méthode courante et retourne le résultat du premier match. */
     public function run(string $uri): ?array
     {
-        if (isset($this->routes[$this->method])) {
+        if (array_key_exists($this->method, $this->routes)) {
             return $this->handle($this->routes[$this->method], $uri);
         }
 
@@ -79,18 +79,23 @@ class Router extends SingletonAbstract
      * Tente de faire correspondre l'URI à chaque route.
      * Utilise PREG_OFFSET_CAPTURE pour extraire précisément les groupes capturants
      * même lorsqu'ils sont adjacents dans l'URI.
+     *
+     * @param list<array{pattern: string, fn: callable}> $routes
+     * @return array<string, string>|null
      */
     private function handle(array $routes, string $uri): ?array
     {
         foreach ($routes as $route) {
+            $matches = [];
             if (!preg_match_all('#^' . $route['pattern'] . '$#', $uri, $matches, PREG_OFFSET_CAPTURE)) {
                 continue;
             }
 
             $matches = array_slice($matches, 1);
+            \assert(is_array($matches), 'preg_match_all must populate $matches on success');
             $params = array_filter(
                 array_map(
-                    function (array $match, int $index) use ($matches): string {
+                    static function (array $match, int $index) use ($matches): string {
                         if (array_key_exists($index + 1, $matches)) {
                             return trim(substr($match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
                         }
@@ -100,11 +105,11 @@ class Router extends SingletonAbstract
                     $matches,
                     array_keys($matches),
                 ),
-                fn(string $v): bool => $v !== '',
+                static fn(string $v): bool => $v !== '',
             );
 
             $fn = $route['fn'];
-            \assert(\is_callable($fn));
+            \assert(\is_callable($fn), 'Route handler must be callable');
             return $fn(...$params);
         }
 
