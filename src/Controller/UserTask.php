@@ -7,6 +7,12 @@ namespace G4\Api\Controller;
 /** Contrôleur pour les associations utilisateur-tâche. */
 class UserTask extends ControllerAbstract
 {
+    #[\Override]
+    public function getIndexAction(): mixed
+    {
+        return [];
+    }
+
     /** Alias POST → délègue à putAddTaskToUserAction(). */
     public function postAddTaskToUserAction(): mixed
     {
