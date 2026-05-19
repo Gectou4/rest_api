@@ -116,12 +116,6 @@ count = 1
 
 [[issues]]
 file = "src/App/Api.php"
-code = "possibly-null-argument"
-message = "Argument #2 of function `array_key_exists` is possibly `null`, but parameter type `array<array-key, mixed>` does not accept it."
-count = 1
-
-[[issues]]
-file = "src/App/Api.php"
 code = "redundant-cast"
 message = "Redundant cast to `(string)`: the expression already has this type."
 count = 3
@@ -229,12 +223,6 @@ message = "Assigning `mixed` type to a variable may lead to unexpected behavior.
 count = 7
 
 [[issues]]
-file = "src/Controller/UserTask.php"
-code = "unimplemented-abstract-method"
-message = 'Class `G4\Api\Controller\UserTask` does not implement the abstract method `getindexaction`.'
-count = 1
-
-[[issues]]
 file = "src/Model/ModelAbstract.php"
 code = "mixed-assignment"
 message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
@@ -298,13 +286,7 @@ count = 7
 file = "src/Model/Task.php"
 code = "mixed-method-access"
 message = "Attempting to access a method on a non-object type (`mixed`)."
-count = 13
-
-[[issues]]
-file = "src/Model/Task.php"
-code = "mixed-method-access"
-message = "Attempting to access a method on a non-object type (`truthy-mixed`)."
-count = 1
+count = 15
 
 [[issues]]
 file = "src/Model/Task.php"
@@ -364,6 +346,18 @@ count = 2
 file = "src/Model/User.php"
 code = "mixed-assignment"
 message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 2
+
+[[issues]]
+file = "src/Model/User.php"
+code = "mixed-method-access"
+message = "Attempting to access a method on a non-object type (`mixed`)."
+count = 2
+
+[[issues]]
+file = "src/Model/User.php"
+code = "possible-method-access-on-null"
+message = "Attempting to call a method on `null`."
 count = 1
 
 [[issues]]
@@ -380,9 +374,27 @@ count = 4
 
 [[issues]]
 file = "src/Model/UserTask.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `G4\Api\Model\Task::setCreationDate`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "src/Model/UserTask.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `G4\Api\Model\Task::setDescription`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "src/Model/UserTask.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `G4\Api\Model\Task::setTitle`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "src/Model/UserTask.php"
 code = "mixed-array-access"
 message = "Unsafe array access on type `mixed`."
-count = 1
+count = 5
 
 [[issues]]
 file = "src/Model/UserTask.php"
