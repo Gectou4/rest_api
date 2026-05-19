@@ -175,7 +175,7 @@ class Api
         $route->setMethod($this->method);
         $result = $route->run($request);
 
-        if (array_key_exists('controller', $result)) {
+        if (is_array($result) && array_key_exists('controller', $result)) {
             $this->controllerName = $result['controller'];
             $this->action         = $result['action'] ?? 'index';
             return $result['params'] ?? [];
