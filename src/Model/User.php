@@ -26,14 +26,13 @@ class User extends ModelAbstract
         }
 
         $this->setId($id);
-        $sth = $this->db?->query(sprintf('SELECT email, name FROM %s WHERE user_id = %d', $this->table, $this->getId()));
-        if ($sth) {
-            $result = $sth->fetch(\PDO::FETCH_ASSOC);
-            if ($result) {
-                $this->setName($result['name']);
-                $this->setEmail($result['email']);
-                $this->loaded = true;
-            }
+        $sth = $this->db->prepare('SELECT email, name FROM `' . $this->table . '` WHERE user_id = ?');
+        $sth->execute([$this->getId()]);
+        $result = $sth->fetch(\PDO::FETCH_ASSOC);
+        if ($result) {
+            $this->setName($result['name']);
+            $this->setEmail($result['email']);
+            $this->loaded = true;
         }
     }
 

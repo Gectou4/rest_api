@@ -64,20 +64,17 @@ class Task extends ModelAbstract
         }
 
         $this->setId($id);
-        $sth = $this->db->query(sprintf(
-            'SELECT status, title, description, creation_date FROM `%s` WHERE task_id = %d',
-            $this->table,
-            $this->getId()
-        ));
-        if ($sth) {
-            $result = $sth->fetch(\PDO::FETCH_ASSOC);
-            if ($result) {
-                $this->setStatus((int) $result['status']);
-                $this->setTitle($result['title']);
-                $this->setDescription($result['description']);
-                $this->setCreationDate($result['creation_date']);
-                $this->loaded = true;
-            }
+        $sth = $this->db->prepare(
+            'SELECT status, title, description, creation_date FROM `' . $this->table . '` WHERE task_id = ?'
+        );
+        $sth->execute([$this->getId()]);
+        $result = $sth->fetch(\PDO::FETCH_ASSOC);
+        if ($result) {
+            $this->setStatus((int) $result['status']);
+            $this->setTitle($result['title']);
+            $this->setDescription($result['description']);
+            $this->setCreationDate($result['creation_date']);
+            $this->loaded = true;
         }
     }
 

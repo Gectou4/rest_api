@@ -224,7 +224,8 @@ class Api
         try {
             $this->response = $this->controller->$method();
         } catch (\Exception $exception) {
-            $this->response = $exception->getMessage();
+            error_log('[API Dispatch] ' . $exception->getMessage() . ' in ' . $exception->getFile() . ':' . $exception->getLine());
+            $this->response = 'Internal Server Error';
         }
 
         return true;

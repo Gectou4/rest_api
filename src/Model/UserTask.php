@@ -141,7 +141,7 @@ class UserTask extends ModelAbstract
         return ['user_id' => $this->userId, 'tasks' => $tasks];
     }
 
-    /** Charge toutes les task_id associées à l'utilisateur. */
+    /** Charge toutes les tâches associées à l'utilisateur en une seule requête JOIN. */
     protected function loadByUserId(int $userId): void
     {
         if ($this->loaded) {
@@ -149,10 +149,21 @@ class UserTask extends ModelAbstract
         }
 
         $this->userId = $userId;
-        $sth = $this->db->prepare('SELECT task_id FROM user_task WHERE user_id = ?');
+        $sth = $this->db->prepare('
+            SELECT t.task_id, t.status, t.title, t.description, t.creation_date
+            FROM user_task ut
+            JOIN task t ON ut.task_id = t.task_id
+            WHERE ut.user_id = ?
+        ');
         $sth->execute([$this->userId]);
         foreach ($sth->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-            $this->addTask((int) $row['task_id']);
+            $task = new Task();
+            $task->setId((int) $row['task_id'])
+                ->setStatus((int) $row['status'])
+                ->setTitle($row['title'])
+                ->setDescription($row['description'])
+                ->setCreationDate($row['creation_date']);
+            $this->taskList[$task->getId()] = $task;
         }
 
         $this->loaded = true;
