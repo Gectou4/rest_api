@@ -16,7 +16,6 @@ class Task extends ControllerAbstract
         return $this->ok((new \G4\Api\Model\Task())->getAll());
     }
 
-    /** Alias POST → délègue à putAddTaskAction(). */
     public function postAddTaskAction(): mixed
     {
         return $this->putAddTaskAction();
@@ -34,11 +33,15 @@ class Task extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
+        $title = (string) $v->get('title');
+        $description = (string) ($v->get('description') ?? '');
+        $status = (int) ($v->get('status') ?? TaskStatus::Backlog->value);
+
         $task = new \G4\Api\Model\Task();
         $result = $task
-            ->setTitle($v->get('title'))
-            ->setDescription($v->get('description') ?? '')
-            ->setStatus($v->get('status') ?? TaskStatus::Backlog->value)
+            ->setTitle($title)
+            ->setDescription($description)
+            ->setStatus($status)
             ->save();
 
         if ($result) {
@@ -49,7 +52,6 @@ class Task extends ControllerAbstract
         return $this->fail('Unable to create new Task', 500);
     }
 
-    /** Alias POST → délègue à putEditTaskAction(). */
     public function postEditTaskAction(): mixed
     {
         return $this->putEditTaskAction();
@@ -68,12 +70,16 @@ class Task extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        $task = $this->requireTask($v->get('id'));
+        $task = $this->requireTask((int) $v->get('id'));
+
+        $title = $v->get('title');
+        $description = $v->get('description');
+        $status = $v->get('status');
 
         $saved = $task
-            ->setTitle($v->get('title') ?? $task->getTitle())
-            ->setDescription($v->get('description') ?? $task->getDescription())
-            ->setStatus($v->get('status') ?? $task->getStatus())
+            ->setTitle(\is_string($title) ? $title : $task->getTitle())
+            ->setDescription(\is_string($description) ? $description : $task->getDescription())
+            ->setStatus(\is_int($status) ? $status : $task->getStatus())
             ->save();
 
         if ($saved) {
@@ -93,9 +99,10 @@ class Task extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        $this->requireTask($v->get('id'));
+        $id = (int) $v->get('id');
+        $this->requireTask($id);
 
-        $task = new \G4\Api\Model\Task($v->get('id'));
+        $task = new \G4\Api\Model\Task($id);
         if ($task->delete()) {
             return $this->ok(1);
         }

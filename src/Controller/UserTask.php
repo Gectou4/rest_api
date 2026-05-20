@@ -15,7 +15,6 @@ class UserTask extends ControllerAbstract
         return $this->ok([]);
     }
 
-    /** Alias POST → délègue à putAddTaskToUserAction(). */
     public function postAddTaskToUserAction(): mixed
     {
         return $this->putAddTaskToUserAction();
@@ -32,11 +31,14 @@ class UserTask extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        $this->requireUser($v->get('userId'));
-        $this->requireTask($v->get('taskId'));
+        $userId = (int) $v->get('userId');
+        $taskId = (int) $v->get('taskId');
 
-        $userTask = new \G4\Api\Model\UserTask($v->get('userId'));
-        if ($userTask->addTask($v->get('taskId'))->save()) {
+        $this->requireUser($userId);
+        $this->requireTask($taskId);
+
+        $userTask = new \G4\Api\Model\UserTask($userId);
+        if ($userTask->addTask($taskId)->save()) {
             return $this->ok(1);
         }
 
@@ -57,12 +59,15 @@ class UserTask extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        $this->requireUser($v->get('userId'));
+        $userId = (int) $v->get('userId');
+        $taskId = (int) $v->get('taskId');
 
-        $userTask = new \G4\Api\Model\UserTask($v->get('userId'));
+        $this->requireUser($userId);
 
-        if ($userTask->hasTask($v->get('taskId'))) {
-            if ($userTask->removeTask($v->get('taskId'))->save()) {
+        $userTask = new \G4\Api\Model\UserTask($userId);
+
+        if ($userTask->hasTask($taskId)) {
+            if ($userTask->removeTask($taskId)->save()) {
                 return $this->ok(1);
             }
 

@@ -19,7 +19,7 @@ class User extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        return $this->ok($this->requireUser($v->get('id'))->toArray());
+        return $this->ok($this->requireUser((int) $v->get('id'))->toArray());
     }
 
     /** Retourne la liste des tâches associées à un utilisateur. */
@@ -32,6 +32,6 @@ class User extends ControllerAbstract
             return $this->fail($v->firstError(), 400);
         }
 
-        return $this->ok($this->requireUser($v->get('id'))->getTask()->toArray());
+        return $this->ok($this->requireUser((int) $v->get('id'))->getTask()->toArray());
     }
 }

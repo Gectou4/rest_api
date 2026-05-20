@@ -9,10 +9,9 @@ namespace G4\Api\App;
  *
  * Usage :
  *   $v = new Validator($params);
- *   $v->required('title')->string()->max(255);
- *   $v->optional('status')->int()->in([1, 2, 3, 4, 5]);
+ *   $v->required('title')->string()->max(255)->end();
+ *   $v->optional('status')->int()->in([1, 2, 3, 4, 5])->end();
  *   if ($v->fails()) { return $this->fail($v->firstError(), 400); }
- *   $title = $v->get('title');
  */
 final class Validator
 {
@@ -30,126 +29,128 @@ final class Validator
         $this->data = $data;
     }
 
-    /** Indique si au moins une règle a échoué. */
     public function fails(): bool
     {
         return $this->errors !== [];
     }
 
-    /** Retourne la première erreur, ou null si aucune. */
-    public function firstError(): ?string
+    public function firstError(): string
     {
-        return $this->errors[0] ?? null;
+        return $this->errors[0] ?? 'Validation failed';
     }
 
-    /** Retourne toutes les erreurs. */
+    /** @return list<string> */
     public function errors(): array
     {
         return $this->errors;
     }
 
-    /** Retourne la valeur validée d'un champ. */
     public function get(string $key): mixed
     {
         return $this->validated[$key] ?? null;
     }
 
-    /** Retourne toutes les données validées. */
+    /** @return array<string, mixed> */
     public function validated(): array
     {
         return $this->validated;
     }
 
-    /** Marque un champ comme requis. */
+    /** @internal */
+    public function addError(string $message): void
+    {
+        $this->errors[] = $message;
+    }
+
+    /** @internal */
+    public function setValidated(string $key, mixed $value): void
+    {
+        $this->validated[$key] = $value;
+    }
+
     public function required(string $key): FieldValidator
     {
         if (!array_key_exists($key, $this->data) || $this->data[$key] === '' || $this->data[$key] === null) {
             $this->errors[] = ucfirst($key) . ' is required';
-            return new FieldValidator($this, $key, null);
+            return new FieldValidator($this, $key, null, true);
         }
-        return new FieldValidator($this, $key, $this->data[$key]);
+        return new FieldValidator($this, $key, $this->data[$key], false);
     }
 
-    /** Marque un champ comme optionnel (vaut null si absent). */
     public function optional(string $key): FieldValidator
     {
         $value = $this->data[$key] ?? null;
-        return new FieldValidator($this, $key, $value);
+        return new FieldValidator($this, $key, $value, false);
     }
 }
 
-/** Validation d'un champ individuel (pattern fluent). */
 final class FieldValidator
 {
     private Validator $validator;
     private string $key;
     private mixed $value;
-    private bool $skip = false;
+    private bool $skip;
 
-    public function __construct(Validator $validator, string $key, mixed $value)
+    public function __construct(Validator $validator, string $key, mixed $value, bool $skip)
     {
         $this->validator = $validator;
         $this->key = $key;
         $this->value = $value;
+        $this->skip = $skip;
     }
 
-    /** Le champ doit être une string non vide. */
     public function string(): self
     {
-        if ($this->skip) {
+        if ($this->skip || $this->value === null) {
             return $this;
         }
-        if ($this->value !== null && !\is_string($this->value)) {
-            $this->validator->errors[] = ucfirst($this->key) . ' must be a string';
+        if (!\is_string($this->value)) {
+            $this->validator->addError(ucfirst($this->key) . ' must be a string');
             $this->skip = true;
         }
         return $this;
     }
 
-    /** Le champ doit être un entier. */
     public function int(): self
     {
-        if ($this->skip) {
+        if ($this->skip || $this->value === null) {
             return $this;
         }
-        if ($this->value !== null && !\is_int($this->value)) {
-            $this->validator->errors[] = ucfirst($this->key) . ' must be an integer';
+        if (!\is_int($this->value)) {
+            $this->validator->addError(ucfirst($this->key) . ' must be an integer');
             $this->skip = true;
         }
         return $this;
     }
 
-    /** Longueur maximale pour une string. */
     public function max(int $max): self
     {
         if ($this->skip || $this->value === null) {
             return $this;
         }
         if (\is_string($this->value) && strlen($this->value) > $max) {
-            $this->validator->errors[] = ucfirst($this->key) . ' must not exceed ' . $max . ' characters';
+            $this->validator->addError(ucfirst($this->key) . ' must not exceed ' . $max . ' characters');
             $this->skip = true;
         }
         return $this;
     }
 
-    /** La valeur doit être dans la liste donnée. */
     public function in(array $allowed): self
     {
         if ($this->skip || $this->value === null) {
             return $this;
         }
         if (!in_array($this->value, $allowed, true)) {
-            $this->validator->errors[] = ucfirst($this->key) . ' must be one of: ' . implode(', ', $allowed);
+            $this->validator->addError(ucfirst($this->key) . ' must be one of: ' . implode(', ', array_map('strval', $allowed)));
             $this->skip = true;
         }
         return $this;
     }
 
-    /** Stocke la valeur validée et retourne le validateur parent. */
     public function end(): Validator
     {
         if (!$this->skip) {
-            $this->validator->validated[$this->key] = $this->value;
+            $this->validator->setValidated($this->key, $this->value);
         }
         return $this->validator;
     }
