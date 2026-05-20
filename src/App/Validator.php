@@ -117,10 +117,15 @@ final class FieldValidator
         if ($this->skip || $this->value === null) {
             return $this;
         }
-        if (!\is_int($this->value)) {
-            $this->validator->addError(ucfirst($this->key) . ' must be an integer');
-            $this->skip = true;
+        if (\is_int($this->value)) {
+            return $this;
         }
+        if (\is_string($this->value) && ctype_digit($this->value)) {
+            $this->value = (int) $this->value;
+            return $this;
+        }
+        $this->validator->addError(ucfirst($this->key) . ' must be an integer');
+        $this->skip = true;
         return $this;
     }
 
