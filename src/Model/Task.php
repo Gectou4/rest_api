@@ -179,7 +179,8 @@ class Task extends ModelAbstract
 
             return $sth->execute();
 
-        } catch (\Exception) {
+        } catch (\PDOException $e) {
+            error_log('[Task::save] ' . $e->getMessage());
             return false;
         }
     }
@@ -191,7 +192,8 @@ class Task extends ModelAbstract
             $sth = $this->db->prepare('DELETE FROM `' . $this->table . '` WHERE task_id = :id');
             $sth->bindValue(':id', $this->getId(), \PDO::PARAM_INT);
             return (bool) $sth->execute();
-        } catch (\Exception) {
+        } catch (\PDOException $e) {
+            error_log('[Task::delete] ' . $e->getMessage());
             return false;
         }
     }
@@ -227,7 +229,8 @@ class Task extends ModelAbstract
                     'creation_date' => $row['creation_date'],
                 ];
             }
-        } catch (\Exception) {
+        } catch (\PDOException $e) {
+            error_log('[Task::getAll] ' . $e->getMessage());
             // @mago-expect lint:no-empty-catch-clause
         }
 
