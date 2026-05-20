@@ -198,15 +198,26 @@ class Task extends ModelAbstract
 
     /**
      * Retourne toutes les tâches sous forme de tableaux associatifs bruts (non hydratés).
-     * TODO(@gectou4) : implémenter $offset et $limit pour la pagination.
+     * Supporte la pagination via $limit et $offset.
      */
     public function getAll(?int $offset = null, ?int $limit = null): array
     {
         $taskList = [];
         try {
-            foreach ($this->db->query(
-                'SELECT task_id, status, title, description, creation_date FROM `' . $this->table . '`'
-            ) as $row) {
+            $query = 'SELECT task_id, status, title, description, creation_date FROM `' . $this->table . '` ORDER BY task_id';
+            $params = [];
+            if ($limit !== null) {
+                $query .= ' LIMIT ?';
+                $params[] = $limit;
+            }
+            if ($offset !== null) {
+                $query .= ' OFFSET ?';
+                $params[] = $offset;
+            }
+
+            $sth = $this->db->prepare($query);
+            $sth->execute($params);
+            foreach ($sth->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 $status = TaskStatus::tryFrom((int) $row['status']);
                 $taskList[$row['task_id']] = [
                     'task_id'       => (int) $row['task_id'],
