@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace G4\Api\Controller;
 
+use G4\Api\App\Validator;
 use G4\Api\Model\TaskStatus;
 
 /** Contrôleur CRUD pour les tâches. */
@@ -24,19 +25,20 @@ class Task extends ControllerAbstract
     /** Crée une nouvelle tâche. Retourne 201 + la tâche créée. */
     public function putAddTaskAction(): mixed
     {
-        $title = $this->getParam('title');
-        if ($title === '' || $title === null) {
-            return $this->fail('Title is required', 400);
-        }
+        $v = new Validator($this->getParams());
+        $v->required('title')->string()->max(255)->end();
+        $v->optional('description')->string()->max(1000)->end();
+        $v->optional('status')->int()->in([1, 2, 3, 4, 5])->end();
 
-        $description = $this->getParam('description');
-        $status = $this->getParam('status');
+        if ($v->fails()) {
+            return $this->fail($v->firstError(), 400);
+        }
 
         $task = new \G4\Api\Model\Task();
         $result = $task
-            ->setTitle((string) $title)
-            ->setDescription(\is_string($description) ? $description : '')
-            ->setStatus(\is_int($status) ? $status : TaskStatus::Backlog->value)
+            ->setTitle($v->get('title'))
+            ->setDescription($v->get('description') ?? '')
+            ->setStatus($v->get('status') ?? TaskStatus::Backlog->value)
             ->save();
 
         if ($result) {
@@ -56,21 +58,22 @@ class Task extends ControllerAbstract
     /** Mise à jour partielle d'une tâche. */
     public function putEditTaskAction(): mixed
     {
-        $id = $this->getParam('id');
-        if ($id === '' || $id === null) {
-            return $this->fail('Id of task to edit is required', 400);
+        $v = new Validator($this->getParams());
+        $v->required('id')->int()->end();
+        $v->optional('title')->string()->max(255)->end();
+        $v->optional('description')->string()->max(1000)->end();
+        $v->optional('status')->int()->in([1, 2, 3, 4, 5])->end();
+
+        if ($v->fails()) {
+            return $this->fail($v->firstError(), 400);
         }
 
-        $task = $this->requireTask((int) $id);
-
-        $title = $this->getParam('title');
-        $description = $this->getParam('description');
-        $status = $this->getParam('status');
+        $task = $this->requireTask($v->get('id'));
 
         $saved = $task
-            ->setTitle(\is_string($title) ? $title : $task->getTitle())
-            ->setDescription(\is_string($description) ? $description : $task->getDescription())
-            ->setStatus(\is_int($status) ? $status : $task->getStatus())
+            ->setTitle($v->get('title') ?? $task->getTitle())
+            ->setDescription($v->get('description') ?? $task->getDescription())
+            ->setStatus($v->get('status') ?? $task->getStatus())
             ->save();
 
         if ($saved) {
@@ -83,10 +86,16 @@ class Task extends ControllerAbstract
     /** Supprime une tâche après avoir vérifié son existence. */
     public function deleteTaskAction(): mixed
     {
-        $id = (int) $this->getParam('id');
-        $this->requireTask($id);
+        $v = new Validator($this->getParams());
+        $v->required('id')->int()->end();
 
-        $task = new \G4\Api\Model\Task($id);
+        if ($v->fails()) {
+            return $this->fail($v->firstError(), 400);
+        }
+
+        $this->requireTask($v->get('id'));
+
+        $task = new \G4\Api\Model\Task($v->get('id'));
         if ($task->delete()) {
             return $this->ok(1);
         }

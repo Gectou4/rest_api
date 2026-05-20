@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace G4\Api\Controller;
 
+use G4\Api\App\Validator;
+
 /** Contrôleur pour les associations utilisateur-tâche. */
 class UserTask extends ControllerAbstract
 {
@@ -22,14 +24,19 @@ class UserTask extends ControllerAbstract
     /** Associe une tâche existante à un utilisateur existant. */
     public function putAddTaskToUserAction(): mixed
     {
-        $userId = (int) $this->getParam('userId');
-        $taskId = (int) $this->getParam('taskId');
+        $v = new Validator($this->getParams());
+        $v->required('userId')->int()->end();
+        $v->required('taskId')->int()->end();
 
-        $this->requireUser($userId);
-        $this->requireTask($taskId);
+        if ($v->fails()) {
+            return $this->fail($v->firstError(), 400);
+        }
 
-        $userTask = new \G4\Api\Model\UserTask($userId);
-        if ($userTask->addTask($taskId)->save()) {
+        $this->requireUser($v->get('userId'));
+        $this->requireTask($v->get('taskId'));
+
+        $userTask = new \G4\Api\Model\UserTask($v->get('userId'));
+        if ($userTask->addTask($v->get('taskId'))->save()) {
             return $this->ok(1);
         }
 
@@ -42,15 +49,20 @@ class UserTask extends ControllerAbstract
      */
     public function deleteUserTaskAction(): mixed
     {
-        $userId = (int) $this->getParam('userId');
-        $taskId = (int) $this->getParam('taskId');
+        $v = new Validator($this->getParams());
+        $v->required('userId')->int()->end();
+        $v->required('taskId')->int()->end();
 
-        $this->requireUser($userId);
+        if ($v->fails()) {
+            return $this->fail($v->firstError(), 400);
+        }
 
-        $userTask = new \G4\Api\Model\UserTask($userId);
+        $this->requireUser($v->get('userId'));
 
-        if ($userTask->hasTask($taskId)) {
-            if ($userTask->removeTask($taskId)->save()) {
+        $userTask = new \G4\Api\Model\UserTask($v->get('userId'));
+
+        if ($userTask->hasTask($v->get('taskId'))) {
+            if ($userTask->removeTask($v->get('taskId'))->save()) {
                 return $this->ok(1);
             }
 
