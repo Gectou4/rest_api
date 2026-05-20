@@ -84,6 +84,7 @@ final class Validator
     }
 }
 
+// @mago-ignore lint:single-class-per-file
 final class FieldValidator
 {
     private Validator $validator;
