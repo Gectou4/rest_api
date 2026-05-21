@@ -8,8 +8,14 @@ if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
     header('Access-Control-Allow-Origin: ' . $origin);
 }
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-HTTP-Method-Override');
+header('Access-Control-Allow-Headers: Content-Type, X-HTTP-Method-Override, Authorization');
 header('Access-Control-Max-Age: 3600');
+
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);

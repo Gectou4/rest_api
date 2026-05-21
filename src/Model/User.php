@@ -56,6 +56,24 @@ class User extends ModelAbstract
         $this->name = $name;
     }
 
+    /**
+     * Cherche un utilisateur par son api_token et retourne son ID, ou null si introuvable.
+     */
+    public static function loadByToken(#[\SensitiveParameter] string $token): ?int
+    {
+        $db = \G4\Api\App\DB::getInstance('master')->getDB();
+        \assert($db instanceof \PDO, 'Database connection must be established');
+        $sth = $db->prepare('SELECT user_id FROM `user` WHERE api_token = ?');
+        \assert($sth instanceof \PDOStatement, 'PDO prepared statement must be valid');
+        $sth->execute([$token]);
+        $row = $sth->fetch(\PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+        \assert(\is_array($row), 'PDO fetch with FETCH_ASSOC must return an array');
+        return (int) $row['user_id'];
+    }
+
     /** Charge et retourne la liste des tâches associées à cet utilisateur. */
     public function getTask(): UserTask
     {

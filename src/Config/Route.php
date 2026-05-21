@@ -16,6 +16,7 @@ class Route
     public static function load(Router $router): void
     {
         $router
+            ->match('POST', '/auth', static fn(): array => ['controller' => 'Auth', 'action' => 'Index'])
             ->match('GET', '/user/(\d+)', static fn(string $id): array => [
                 'controller' => 'User',
                 'action' => 'Index',

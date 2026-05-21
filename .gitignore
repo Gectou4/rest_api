@@ -4,3 +4,5 @@ vendor/
 .env.local
 *.log
 .docker/
+.idea/
+.phpunit.result.cache
