@@ -11,7 +11,8 @@ class ApiTest extends TestCase
 {
     private static function getValidToken(): string
     {
-        return 'Bearer ' . (getenv('API_TEST_TOKEN') ?? 'g4-token-2024');
+        // @mago-ignore lint:no-shorthand-ternary
+        return 'Bearer ' . (getenv('API_TEST_TOKEN') ?: 'g4-token-2024');
     }
 
     protected function setUp(): void
@@ -27,7 +28,8 @@ class ApiTest extends TestCase
         $_GET['request'] = '/auth';
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST['name'] = 'G4';
-        $_POST['api_token'] = getenv('API_TEST_TOKEN') ?? 'g4-token-2024';
+        // @mago-ignore lint:no-shorthand-ternary
+        $_POST['api_token'] = getenv('API_TEST_TOKEN') ?: 'g4-token-2024';
 
         $api = new Api();
         $response = $api->processRequest()->getFormatedResponseForContent();
