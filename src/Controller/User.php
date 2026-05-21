@@ -13,7 +13,7 @@ class User extends ControllerAbstract
     /** Retourne la liste de tous les utilisateurs. */
     public function getListAction(): mixed
     {
-        return array_map(fn(UserModel $u) => $u->toArray(), UserModel::loadAll());
+        return array_map(static fn(UserModel $u) => $u->toArray(), UserModel::loadAll());
     }
 
     #[\Override]
