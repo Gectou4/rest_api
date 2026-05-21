@@ -74,6 +74,23 @@ class User extends ModelAbstract
         return (int) $row['user_id'];
     }
 
+    /** Retourne tous les utilisateurs. */
+    public static function loadAll(): array
+    {
+        $db = \G4\Api\App\DB::getInstance('master')->getDB();
+        $sth = $db->query('SELECT user_id, name, email FROM `user` ORDER BY user_id');
+        $users = [];
+        foreach ($sth->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $user = new self();
+            $user->setId((int) $row['user_id']);
+            $user->setName($row['name']);
+            $user->setEmail($row['email']);
+            $user->loaded = true;
+            $users[] = $user;
+        }
+        return $users;
+    }
+
     /** Charge et retourne la liste des tâches associées à cet utilisateur. */
     public function getTask(): UserTask
     {

@@ -17,6 +17,7 @@ class Route
     {
         $router
             ->match('POST', '/auth', static fn(): array => ['controller' => 'Auth', 'action' => 'Index'])
+            ->match('GET', '/users', static fn(): array => ['controller' => 'User', 'action' => 'list'])
             ->match('GET', '/user/(\d+)', static fn(string $id): array => [
                 'controller' => 'User',
                 'action' => 'Index',

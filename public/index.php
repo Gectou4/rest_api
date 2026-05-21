@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 $allowedOrigins = explode(',', (string) getenv('ALLOWED_ORIGINS'));
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
+if ($origin !== '') {
+    $hasWildcard = in_array('*', $allowedOrigins, true);
+    if ($hasWildcard || in_array($origin, $allowedOrigins, true)) {
+        header('Access-Control-Allow-Origin: ' . ($hasWildcard ? '*' : $origin));
+    }
 }
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-HTTP-Method-Override, Authorization');

@@ -365,14 +365,14 @@ class Api
         return $data;
     }
 
-    /** Supprime les balises HTML et les espaces superflus de façon récursive. */
+    /** Nettoie les entrées récursivement (trim, pas de strip_tags pour éviter la perte de données). */
     protected function cleanInputs(mixed $data): mixed
     {
         if (is_array($data)) {
             return array_map($this->cleanInputs(...), $data);
         }
 
-        return trim(strip_tags((string) $data));
+        return trim((string) $data);
     }
 
     /** Retourne le libellé HTTP associé au code. */
